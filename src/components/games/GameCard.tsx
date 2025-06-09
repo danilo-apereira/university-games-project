@@ -11,8 +11,8 @@ interface GameCardProps {
 export default function GameCard({ game }: GameCardProps) {
   const hasImage = game.image_path && game.image_path !== "null";
   const imageUrl = hasImage
-    ? `https://53d6-187-72-95-177.ngrok-free.app${game.image_path}`
-    : `https://53d6-187-72-95-177.ngrok-free.app/static/game_images/white_label.png`;
+    ? `https://4047-187-72-95-177.ngrok-free.app${game.image_path}`
+    : `https://4047-187-72-95-177.ngrok-free.app/static/game_images/white_label.png`;
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:scale-[1.02] flex flex-col">

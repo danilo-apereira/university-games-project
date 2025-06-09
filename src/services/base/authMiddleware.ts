@@ -11,7 +11,7 @@ import {
 const baseQueryWithAuth = fetchBaseQuery({
   baseUrl:
     process.env.NEXT_PUBLIC_API_URL ||
-    "https://53d6-187-72-95-177.ngrok-free.app",
+    "https://4047-187-72-95-177.ngrok-free.app",
   prepareHeaders: (headers) => {
     const token = getTokenFromStorage();
 
