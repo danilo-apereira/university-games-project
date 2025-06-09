@@ -11,8 +11,8 @@ interface GameCardProps {
 export default function GameCard({ game }: GameCardProps) {
   const hasImage = game.image_path && game.image_path !== "null";
   const imageUrl = hasImage
-    ? `https://187.72.95.177:60200${game.image_path}`
-    : `https://187.72.95.177:60200/static/game_images/white_label.png`;
+    ? `http://local.zydon.com.br:22100${game.image_path}`
+    : `http://local.zydon.com.br:22100/static/game_images/white_label.png`;
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:scale-[1.02] flex flex-col">

@@ -9,7 +9,7 @@ import {
 } from "@reduxjs/toolkit/query";
 
 const baseQueryWithAuth = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || "https://187.72.95.177:60200",
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://local.zydon.com.br:22100",
   prepareHeaders: (headers) => {
     const token = getTokenFromStorage();
 
