@@ -11,7 +11,10 @@ export const authApi = api
   })
   .injectEndpoints({
     endpoints: (build) => ({
-      login: build.mutation<{ user: User; token: string }, LoginRequest>({
+      login: build.mutation<
+        { access_token: string; token_type: string },
+        LoginRequest
+      >({
         query: (body) => ({
           url: "/auth/login",
           method: "POST",
@@ -22,8 +25,9 @@ export const authApi = api
         onQueryStarted: async (_, { queryFulfilled }) => {
           try {
             const { data } = await queryFulfilled;
-            if (data && data.token) {
-              saveTokenToStorage(data.token);
+            if (data && data.access_token) {
+              console.log("Salvando token da API:", data.access_token);
+              saveTokenToStorage(data.access_token);
             }
           } catch (error) {
             console.error("Erro ao salvar token:", error);
@@ -38,10 +42,11 @@ export const authApi = api
         }),
         invalidatesTags: ["Auth"],
       }),
-      getCurrentUser: build.query<User, void>({
-        query: () => ({
-          url: "/users/data",
+      getCurrentUser: build.query<User, number>({
+        query: (id) => ({
+          url: "/user/data",
           method: "GET",
+          params: { id },
         }),
         providesTags: ["Auth"],
       }),

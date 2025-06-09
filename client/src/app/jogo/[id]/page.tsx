@@ -3,11 +3,18 @@
 import {
   useGetGameDetailQuery,
   useGetGameRatingQuery,
+  useDeleteGameMutation,
 } from "@/services/gamesApi";
-import { useParams } from "next/navigation";
+import { useGetCurrentUserQuery } from "@/services/authApi";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import useApiMessage from "@/hooks/useApiMessage";
+import RatingModal from "./components/RatingModal";
+import { getUserIdFromToken } from "@/utils/jwt";
+import { routes } from "@/routes";
 
 const LoadingState = () => (
   <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -29,6 +36,9 @@ const ErrorState = ({ message }: { message: string }) => (
 
 export default function GameDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const { showSuccessMessage, showErrorMessage } = useApiMessage();
+  const [deleteGame, { isLoading: isDeleting }] = useDeleteGameMutation();
 
   let gameId = 0;
   if (typeof params?.id === "string") {
@@ -39,20 +49,62 @@ export default function GameDetailPage() {
   }
 
   const [isClient, setIsClient] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const { data: game, isLoading, error } = useGetGameDetailQuery(gameId);
+  const userId = isClient ? getUserIdFromToken() : null;
+
+  const { data: currentUser } = useGetCurrentUserQuery(userId || 0, {
+    skip: !userId,
+  });
+
+  const {
+    data: game,
+    isLoading,
+    error,
+  } = useGetGameDetailQuery(gameId, {
+    refetchOnMountOrArgChange: true,
+  });
   const { data: ratings = [] } = useGetGameRatingQuery(gameId, {
     skip: !gameId,
+    refetchOnMountOrArgChange: true,
   });
+
+  const userExistingRating =
+    currentUser && ratings.length > 0
+      ? ratings.find((rating) => rating.user_nickname === currentUser.nickname)
+      : null;
+
+  const openRatingModal = () => setIsModalOpen(true);
+  const closeRatingModal = () => setIsModalOpen(false);
+
+  const handleDeleteGame = async () => {
+    if (
+      window.confirm(
+        "Tem certeza que deseja excluir este jogo? Esta ação não pode ser desfeita."
+      )
+    ) {
+      try {
+        await deleteGame(gameId).unwrap();
+        showSuccessMessage("Jogo excluído com sucesso!");
+        router.push("/");
+      } catch (error) {
+        console.error("Erro ao excluir jogo:", error);
+        showErrorMessage(
+          error,
+          "Ocorreu um erro ao excluir o jogo. Tente novamente."
+        );
+      }
+    }
+  };
 
   const hasImage = game?.image_path && game.image_path !== "null";
   const imageUrl = hasImage
-    ? `http://26.40.35.207:8000${game?.image_path}`
-    : "http://26.40.35.207:8000/static/game_images/white_label.png";
+    ? `${process.env.NEXT_PUBLIC_API_URL}${game?.image_path}`
+    : `${process.env.NEXT_PUBLIC_API_URL}/static/game_images/white_label.png`;
 
   if (!isClient || isLoading) {
     return <LoadingState />;
@@ -106,13 +158,40 @@ export default function GameDetailPage() {
             </p>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 flex items-center gap-4">
             <Link
               href="/"
               className="inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md font-semibold text-gray-700 hover:bg-gray-200 transition-colors"
             >
               ← Voltar para a lista de jogos
             </Link>
+
+            {currentUser ? (
+              <>
+                <Button
+                  onClick={openRatingModal}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors"
+                >
+                  {userExistingRating
+                    ? "Editar avaliação"
+                    : "Avaliar este jogo"}
+                </Button>
+                <Button
+                  onClick={handleDeleteGame}
+                  disabled={isDeleting}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md font-semibold hover:bg-red-700 transition-colors"
+                >
+                  {isDeleting ? "Excluindo..." : "Excluir"}
+                </Button>
+              </>
+            ) : (
+              <Link
+                href={routes.guest.auth.login}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors"
+              >
+                Faça login para avaliar
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -145,6 +224,15 @@ export default function GameDetailPage() {
           )}
         </div>
       </div>
+
+      {currentUser && (
+        <RatingModal
+          isOpen={isModalOpen}
+          onClose={closeRatingModal}
+          gameId={gameId}
+          userNickname={currentUser.nickname}
+        />
+      )}
     </div>
   );
 }

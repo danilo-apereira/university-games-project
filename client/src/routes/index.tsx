@@ -1,7 +1,7 @@
 const routes = {
   public: {
     home: "/",
-    catalog: "/catalogo",
+    createGame: "/criar-jogo",
     rating: "/avaliacao",
   },
   guest: {

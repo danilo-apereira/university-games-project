@@ -5,7 +5,11 @@ import GameCard from "@/components/games/GameCard";
 import { useState, useEffect } from "react";
 
 export default function Home() {
-  const { data: games = [], isLoading, error } = useGetGamesQuery();
+  const {
+    data: games = [],
+    isLoading,
+    error,
+  } = useGetGamesQuery(undefined, { refetchOnMountOrArgChange: true });
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {

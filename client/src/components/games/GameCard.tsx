@@ -11,8 +11,8 @@ interface GameCardProps {
 export default function GameCard({ game }: GameCardProps) {
   const hasImage = game.image_path && game.image_path !== "null";
   const imageUrl = hasImage
-    ? `http://26.40.35.207:8000${game.image_path}`
-    : "http://26.40.35.207:8000/static/game_images/white_label.png";
+    ? `${process.env.NEXT_PUBLIC_API_URL}${game.image_path}`
+    : `${process.env.NEXT_PUBLIC_API_URL}/static/game_images/white_label.png`;
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:scale-[1.02] flex flex-col">

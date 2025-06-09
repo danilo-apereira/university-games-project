@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLoginMutation } from "@/services/authApi";
+import { jwtDecode } from "jwt-decode";
+import { saveTokenToStorage } from "@/utils/jwt";
 import {
   Card,
   CardContent,
@@ -30,10 +32,25 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      await login({ identifier, password }).unwrap();
+      const response = await login({ identifier, password }).unwrap();
+      console.log("Login response:", response);
+
+      if (response && response.access_token) {
+        console.log("Salvando token manualmente:", response.access_token);
+        saveTokenToStorage(response.access_token);
+
+        try {
+          const decoded = jwtDecode(response.access_token);
+          console.log("Token decodificado:", decoded);
+        } catch (error) {
+          console.error("Erro ao decodificar token:", error);
+        }
+      }
+
       showSuccessMessage("Login realizado com sucesso");
       router.push(routes.public.home);
     } catch (error) {
+      console.error("Erro de login:", error);
       showErrorMessage(
         error,
         "Falha ao fazer login. Verifique suas credenciais."

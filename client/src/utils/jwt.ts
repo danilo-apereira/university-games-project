@@ -3,17 +3,14 @@
 import { jwtDecode } from "jwt-decode";
 
 export interface JwtPayload {
-  sub: string; // usuário ID
+  id: string;
   email?: string;
   name?: string;
   role?: string;
-  exp?: number; // timestamp de expiração
-  iat?: number; // timestamp de emissão
+  exp?: number;
+  iat?: number;
 }
 
-/**
- * Decodifica um token JWT e retorna seu payload
- */
 export const decodeToken = (token: string): JwtPayload | null => {
   try {
     return jwtDecode<JwtPayload>(token);
@@ -23,40 +20,39 @@ export const decodeToken = (token: string): JwtPayload | null => {
   }
 };
 
-/**
- * Verifica se o token está expirado
- */
 export const isTokenExpired = (token: string): boolean => {
   const payload = decodeToken(token);
   if (!payload || !payload.exp) return true;
-  
-  // Convertendo para milissegundos e comparando com o tempo atual
+
   const expirationTime = payload.exp * 1000;
   const now = Date.now();
-  
+
   return now >= expirationTime;
 };
 
-/**
- * Obtém o token do localStorage
- */
 export const getTokenFromStorage = (): string | null => {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("auth_token");
 };
 
-/**
- * Salva o token no localStorage
- */
 export const saveTokenToStorage = (token: string): void => {
   if (typeof window === "undefined") return;
   localStorage.setItem("auth_token", token);
 };
 
-/**
- * Remove o token do localStorage
- */
 export const removeTokenFromStorage = (): void => {
   if (typeof window === "undefined") return;
   localStorage.removeItem("auth_token");
+};
+
+export const getUserIdFromToken = (): number | null => {
+  const token = getTokenFromStorage();
+  if (!token) return null;
+
+  const payload = decodeToken(token);
+  if (!payload || !payload.id) return null;
+
+  const userId =
+    typeof payload.id === "number" ? payload.id : parseInt(payload.id, 10);
+  return isNaN(userId) ? null : userId;
 };

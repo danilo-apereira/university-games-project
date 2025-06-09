@@ -15,15 +15,12 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-// Inicialização segura do estado de autenticação
-// Em SSR, não teremos acesso ao localStorage, então começamos com valores padrão
 const initialState: AuthState = {
   user: null,
   token: null,
-  isAuthenticated: false
+  isAuthenticated: false,
 };
 
-// No lado do cliente, tentamos recuperar o token e verificar se é válido
 if (typeof window !== "undefined") {
   try {
     const storedToken = getTokenFromStorage();
@@ -33,7 +30,6 @@ if (typeof window !== "undefined") {
     }
   } catch (error) {
     console.error("Erro ao inicializar o estado de autenticação:", error);
-    // Em caso de erro, remover qualquer token inválido
     removeTokenFromStorage();
   }
 }
