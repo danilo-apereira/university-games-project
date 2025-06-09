@@ -103,8 +103,8 @@ export default function GameDetailPage() {
 
   const hasImage = game?.image_path && game.image_path !== "null";
   const imageUrl = hasImage
-    ? `https://187.72.95.177:8585${game?.image_path}`
-    : `https://187.72.95.177:8585/static/game_images/white_label.png`;
+    ? `https://187.72.95.177:60200${game?.image_path}`
+    : `https://187.72.95.177:60200/static/game_images/white_label.png`;
 
   if (!isClient || isLoading) {
     return <LoadingState />;
