@@ -1,84 +1,52 @@
-import { CarouselSpacing } from "@/components/carousel";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+"use client";
 
-const games = [
-  {
-    id: "1",
-    name: "Jogo 1",
-    producer: "Produzido por 1",
-    genre: "Ação",
-    rating: "4.5",
-  },
-  {
-    id: "2",
-    name: "Jogo 2",
-    producer: "Produzido por 2",
-    genre: "Ação",
-    rating: "4.2",
-  },
-  {
-    id: "3",
-    name: "Jogo 3",
-    producer: "Produzido por 3",
-    genre: "Ação",
-    rating: "4.8",
-  },
-  {
-    id: "4",
-    name: "Jogo 4",
-    producer: "Produzido por 4",
-    genre: "Ação",
-    rating: "4.1",
-  },
-  {
-    id: "5",
-    name: "Jogo 5",
-    producer: "Produzido por 5",
-    genre: "Ação",
-    rating: "4.3",
-  },
-];
+import { useGetGamesQuery } from "@/services/gamesApi";
+import GameCard from "@/components/games/GameCard";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="w-full flex flex-col gap-8 pt-4">
-      <h1 className="text-2xl font-semibold">Melhores avaliados</h1>
+  const { data: games = [], isLoading, error } = useGetGamesQuery();
+  const [isClient, setIsClient] = useState(false);
 
-      <div className="w-full px-12">
-        <CarouselSpacing />
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient || isLoading) {
+    return (
+      <div className="container mx-auto py-10 px-4">
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       </div>
+    );
+  }
 
-      <h1 className="text-2xl font-semibold">Lista de jogos</h1>
+  if (error) {
+    return (
+      <div className="container mx-auto py-10 px-4">
+        <div className="bg-red-100 p-4 rounded-md text-red-800 text-center">
+          Ocorreu um erro ao carregar os jogos. Tente novamente mais tarde.
+        </div>
+      </div>
+    );
+  }
 
-      <Table>
-        <TableCaption>Clique aqui para ver todos os jogos</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">#</TableHead>
-            <TableHead>Jogo</TableHead>
-            <TableHead>Produtora</TableHead>
-            <TableHead className="text-right">Média de avaliação</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+  return (
+    <div className="container mx-auto py-10 px-4">
+      <h1 className="text-3xl font-bold mb-8 text-center">Catálogo de Jogos</h1>
+
+      {games.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-gray-500">Nenhum jogo encontrado.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {games.map((game) => (
-            <TableRow key={game.id}>
-              <TableCell className="font-medium">{game.id}</TableCell>
-              <TableCell>{game.name}</TableCell>
-              <TableCell>{game.producer}</TableCell>
-              <TableCell className="text-right">{game.rating}</TableCell>
-            </TableRow>
+            <GameCard key={game.id} game={game} />
           ))}
-        </TableBody>
-      </Table>
+        </div>
+      )}
     </div>
   );
 }

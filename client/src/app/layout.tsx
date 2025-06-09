@@ -1,7 +1,12 @@
-import type { Metadata } from "next";
+"use client";
+
+import { usePathname } from "next/navigation";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
+import { ReduxProvider } from "@/lib/redux/provider";
+import { routes } from "@/routes";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,31 +18,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "University Games Project",
-  description:
-    "Um projeto universitário que simula a listagem e avaliação de jogos, com dados obtidos por meio de uma API.",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+
+  const shouldShowNavbar =
+    pathname !== routes.guest.auth.login &&
+    pathname !== routes.guest.auth.register;
+
   return (
     <html lang="pt-BR">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen w-full bg-white flex justify-center">
-          <div className="flex flex-col items-center w-full max-w-6xl">
-            <div className="p-24 w-full">
-              <Navbar />
+        <ReduxProvider>
+          <div className="min-h-screen w-full bg-white flex justify-center">
+            <div className="flex flex-col items-center w-full max-w-6xl">
+              <div className="p-24 w-full">
+                {shouldShowNavbar && <Navbar />}
 
-              {children}
+                {children}
+              </div>
             </div>
           </div>
-        </div>
+
+          <Toaster position="top-right" />
+        </ReduxProvider>
       </body>
     </html>
   );
