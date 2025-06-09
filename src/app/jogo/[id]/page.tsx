@@ -103,8 +103,8 @@ export default function GameDetailPage() {
 
   const hasImage = game?.image_path && game.image_path !== "null";
   const imageUrl = hasImage
-    ? `http://local.zydon.com.br:22100${game?.image_path}`
-    : `http://local.zydon.com.br:22100/static/game_images/white_label.png`;
+    ? `https://53d6-187-72-95-177.ngrok-free.app${game?.image_path}`
+    : `https://53d6-187-72-95-177.ngrok-free.app/static/game_images/white_label.png`;
 
   if (!isClient || isLoading) {
     return <LoadingState />;
