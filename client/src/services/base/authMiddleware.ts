@@ -9,7 +9,7 @@ import {
 } from "@reduxjs/toolkit/query";
 
 const baseQueryWithAuth = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api",
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://187.72.95.177:8585",
   prepareHeaders: (headers) => {
     const token = getTokenFromStorage();
 
